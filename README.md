@@ -10,6 +10,8 @@ It provides:
 - Native Hyprland window focus/grouping and native Quickshell service integrations.
 - Notification popups and bounded in-session history when running under Hyprland.
 
+![Screenshot of the shell with hyprland](image.png)
+
 ## Requirements
 
 - Linux with Hyprland
