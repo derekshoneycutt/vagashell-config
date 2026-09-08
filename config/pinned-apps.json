@@ -1,0 +1,122 @@
+{
+    "pinned": [
+        {
+            "aliases": [
+                "google-chrome",
+                "Google-chrome"
+            ],
+            "desktopId": "com.google.Chrome",
+            "name": "Google Chrome"
+        },
+        {
+            "aliases": [
+                "com.mitchellh.ghostty"
+            ],
+            "desktopId": "com.mitchellh.ghostty",
+            "name": "Ghostty"
+        },
+        {
+            "aliases": [
+                "org.gnome.Nautilus",
+                "nautilus"
+            ],
+            "desktopId": "org.gnome.Nautilus",
+            "name": "Files"
+        },
+        {
+            "aliases": [
+                "code",
+                "Code"
+            ],
+            "desktopId": "code",
+            "name": "Visual Studio Code"
+        },
+        {
+            "aliases": [
+                "nvim"
+            ],
+            "command": [
+                "ghostty",
+                "--class=nvim",
+                "--gtk-single-instance=false",
+                "-e",
+                "nvim"
+            ],
+            "desktopId": "",
+            "icon": "nvim",
+            "name": "Neovim"
+        },
+        {
+            "aliases": [
+                "org.gnome.TextEditor"
+            ],
+            "desktopId": "org.gnome.TextEditor",
+            "name": "Text Editor"
+        },
+        {
+            "aliases": [
+                "qalculate-gtk"
+            ],
+            "desktopId": "qalculate-gtk",
+            "name": "Qalculate"
+        },
+        {
+            "aliases": [
+                "Zotero",
+                "zotero"
+            ],
+            "desktopId": "zotero",
+            "name": "Zotero"
+        },
+        {
+            "aliases": [
+                "steam"
+            ],
+            "desktopId": "steam",
+            "name": "Steam"
+        },
+        {
+            "aliases": [
+                "crx_neejcaapkjghlgnkkgnfchhncfdjelgk"
+            ],
+            "command": [
+                "/opt/google/chrome/google-chrome",
+                "--profile-directory=Default",
+                "--app-id=neejcaapkjghlgnkkgnfchhncfdjelgk"
+            ],
+            "desktopId": "",
+            "icon": "chrome-neejcaapkjghlgnkkgnfchhncfdjelgk-Default",
+            "name": "Audiobookshelf"
+        },
+        {
+            "aliases": [
+                "spotify"
+            ],
+            "desktopId": "spotify",
+            "name": "Spotify"
+        },
+        {
+            "aliases": [
+                "VirtualBox Manager",
+                "VirtualBox"
+            ],
+            "desktopId": "virtualbox",
+            "name": "VirtualBox"
+        },
+        {
+            "aliases": [
+                "gnome-system-monitor",
+                "org.gnome.SystemMonitor"
+            ],
+            "desktopId": "org.gnome.SystemMonitor",
+            "name": "System Monitor"
+        },
+        {
+            "aliases": [
+                "org.gnome.Mines"
+            ],
+            "desktopId": "org.gnome.Mines",
+            "name": "Mines"
+        }
+    ]
+}

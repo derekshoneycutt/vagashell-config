@@ -46,6 +46,10 @@ ShellRoot {
         id: connectivity
     }
 
+    AppPinService {
+        id: appPins
+    }
+
     Variants {
         model: Quickshell.screens
 
@@ -57,6 +61,7 @@ ShellRoot {
             notificationService: notifications
             systemDataService: systemData
             connectivityService: connectivity
+            appPinService: appPins
         }
     }
 }

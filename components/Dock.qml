@@ -5,16 +5,20 @@ import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Wayland
 import "../config/Theme.js" as Theme
-import "../config/Apps.js" as Apps
 
 PanelWindow {
     id: root
 
     required property var shellScreen
+    required property var appPinService
     property int hoveredIndex: -1
+    property var contextDockItem: null
+    property int contextIndex: -1
+    property real contextCenterX: 0
+    readonly property bool contextMenuOpen: contextDockItem !== null
 
     screen: shellScreen
-    implicitHeight: Theme.dockSurfaceHeight
+    implicitHeight: shellScreen.height
     color: "transparent"
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Overlay
@@ -27,7 +31,19 @@ PanelWindow {
     }
 
     mask: Region {
-        item: dockBackground
+        item: root.contextMenuOpen ? dismissArea : dockBackground
+    }
+
+    function openContextMenu(item: var): void {
+        contextDockItem = item;
+        contextIndex = item.index;
+        contextCenterX = dockBackground.x + dockRow.x + item.x + item.width / 2;
+        hoveredIndex = -1;
+    }
+
+    function closeContextMenu(): void {
+        contextDockItem = null;
+        contextIndex = -1;
     }
 
     function iconSizeFor(index): real {
@@ -59,6 +75,26 @@ PanelWindow {
         }
     }
 
+    component ContextAction: ItemDelegate {
+        width: parent.width
+        height: 32
+        leftPadding: 10
+        rightPadding: 10
+
+        background: Rectangle {
+            color: parent.hovered ? Theme.hover : "transparent"
+            radius: 4
+        }
+
+        contentItem: Text {
+            color: parent.enabled ? Theme.foreground : Theme.muted
+            font.family: "Cantarell"
+            font.pixelSize: 12
+            verticalAlignment: Text.AlignVCenter
+            text: parent.text
+        }
+    }
+
     property var unpinnedApps: {
         const active = Hyprland.activeToplevel;
         const monitor = Hyprland.monitorFor(root.shellScreen);
@@ -71,7 +107,7 @@ PanelWindow {
             const metadata = toplevel.lastIpcObject || {};
             const windowClass = String(metadata.class || metadata.initialClass || "");
             const normalizedClass = windowClass.toLowerCase();
-            const pinned = Apps.pinned.some(app => app.aliases.some(alias => alias.toLowerCase() === normalizedClass));
+            const pinned = root.appPinService.pinned.some(app => app.aliases.some(alias => alias.toLowerCase() === normalizedClass));
             if (pinned || normalizedClass.length === 0)
                 continue;
 
@@ -102,7 +138,7 @@ PanelWindow {
             spacing: 4
 
             Repeater {
-                model: Apps.pinned
+                model: root.appPinService.pinned
 
                 Item {
                     id: dockItem
@@ -202,24 +238,9 @@ PanelWindow {
                             if (mouse.button === Qt.MiddleButton)
                                 dockItem.launch();
                             else if (mouse.button === Qt.RightButton)
-                                contextMenu.open();
+                                root.openContextMenu(dockItem);
                             else
                                 dockItem.launch();
-                        }
-                    }
-
-                    Menu {
-                        id: contextMenu
-
-                        MenuItem {
-                            text: "New window"
-                            onTriggered: dockItem.launch()
-                        }
-
-                        MenuItem {
-                            text: "Close all"
-                            enabled: dockItem.running
-                            onTriggered: dockItem.closeAll()
                         }
                     }
 
@@ -250,7 +271,7 @@ PanelWindow {
 
                     required property var modelData
                     required property int index
-                    readonly property int dockIndex: Apps.pinned.length + index
+                    readonly property int dockIndex: root.appPinService.pinned.length + index
                     readonly property real iconSize: root.iconSizeFor(dockIndex)
                     property var desktopEntry: {
                         DesktopEntries.applications.values;
@@ -324,5 +345,89 @@ PanelWindow {
                 }
             }
         }
+    }
+
+    MouseArea {
+        id: dismissArea
+        anchors.fill: parent
+        z: 100
+        visible: root.contextMenuOpen
+        acceptedButtons: Qt.AllButtons
+        onPressed: root.closeContextMenu()
+    }
+
+    Rectangle {
+        id: contextPanel
+        visible: root.contextMenuOpen
+        z: 101
+        width: 156
+        height: contextActions.implicitHeight + 8
+        x: Math.max(6, Math.min(root.width - width - 6, root.contextCenterX - width / 2))
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: Theme.dockSurfaceHeight - 4
+        color: Theme.elevated
+        radius: 6
+        border.width: 1
+        border.color: "#55636c70"
+
+        Column {
+            id: contextActions
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.top: parent.top
+            anchors.margins: 4
+
+            ContextAction {
+                text: "New window"
+                onClicked: {
+                    const item = root.contextDockItem;
+                    root.closeContextMenu();
+                    item.launch();
+                }
+            }
+
+            ContextAction {
+                text: "Close all"
+                enabled: root.contextDockItem && root.contextDockItem.running
+                onClicked: {
+                    const item = root.contextDockItem;
+                    root.closeContextMenu();
+                    item.closeAll();
+                }
+            }
+
+            Rectangle {
+                width: parent.width
+                height: 1
+                color: "#55636c70"
+            }
+
+            ContextAction {
+                text: "Move left"
+                enabled: root.contextIndex > 0
+                onClicked: {
+                    const index = root.contextIndex;
+                    root.closeContextMenu();
+                    root.appPinService.move(index, -1);
+                }
+            }
+
+            ContextAction {
+                text: "Move right"
+                enabled: root.contextIndex >= 0 && root.contextIndex < root.appPinService.pinned.length - 1
+                onClicked: {
+                    const index = root.contextIndex;
+                    root.closeContextMenu();
+                    root.appPinService.move(index, 1);
+                }
+            }
+        }
+    }
+
+    Shortcut {
+        sequence: "Escape"
+        enabled: root.contextMenuOpen
+        context: Qt.ApplicationShortcut
+        onActivated: root.closeContextMenu()
     }
 }

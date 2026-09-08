@@ -13,6 +13,7 @@ PanelWindow {
     required property var shellScreen
     required property var uiState
     required property var connectivityService
+    required property var appPinService
     readonly property bool expanded: uiState.expanded
     property var audioSink: Pipewire.defaultAudioSink
     property var bluetoothAdapter: Bluetooth.defaultAdapter
@@ -234,6 +235,26 @@ PanelWindow {
                                             font.family: "Cantarell"
                                             font.pixelSize: 9
                                             text: appItem.modelData.genericName || ""
+                                        }
+                                    }
+
+                                    ToolButton {
+                                        Layout.preferredWidth: 28
+                                        Layout.preferredHeight: 28
+                                        readonly property bool pinned: root.appPinService.isPinned(appItem.modelData.id)
+                                        opacity: pinned ? 1 : 0.5
+                                        rotation: pinned ? 0 : 45
+                                        icon.source: Quickshell.iconPath("view-pin-symbolic")
+                                        icon.width: 15
+                                        icon.height: 15
+                                        icon.color: Theme.foreground
+                                        ToolTip.visible: hovered
+                                        ToolTip.text: pinned ? "Unpin from dock" : "Pin to dock"
+                                        onClicked: {
+                                            if (pinned)
+                                                root.appPinService.unpin(appItem.modelData.id);
+                                            else
+                                                root.appPinService.pin(appItem.modelData);
                                         }
                                     }
                                 }

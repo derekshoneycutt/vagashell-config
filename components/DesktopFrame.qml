@@ -11,6 +11,7 @@ Scope {
     required property var notificationService
     required property var systemDataService
     required property var connectivityService
+    required property var appPinService
 
     QtObject {
         id: systemMonitorState
@@ -85,6 +86,7 @@ Scope {
         shellScreen: root.shellScreen
         uiState: appListState
         connectivityService: root.connectivityService
+        appPinService: root.appPinService
     }
 
     FrameOutline {
@@ -96,5 +98,6 @@ Scope {
 
     Dock {
         shellScreen: root.shellScreen
+        appPinService: root.appPinService
     }
 }
