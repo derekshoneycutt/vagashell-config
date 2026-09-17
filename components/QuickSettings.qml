@@ -15,6 +15,7 @@ Item {
     property var bluetoothAdapter
     property var connectedNetwork
     property var connectivityService
+    property var recorderService
     property string expandedSection: ""
     property string pendingWifiSsid: ""
     property bool confirmPowerOff: false
@@ -475,6 +476,123 @@ Item {
                 font.pixelSize: 10
                 wrapMode: Text.Wrap
                 text: root.connectivityService ? root.connectivityService.error : ""
+            }
+
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 64
+                color: Theme.background
+                radius: 7
+                border.width: 1
+                border.color: root.recorderService && root.recorderService.status === "recording"
+                    ? Theme.urgent : "#33434d50"
+
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.leftMargin: 8
+                    anchors.rightMargin: 8
+                    spacing: 5
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 1
+
+                        Label {
+                            color: Theme.foreground
+                            font.family: "Cantarell"
+                            font.weight: Font.DemiBold
+                            text: "Screen recorder"
+                        }
+
+                        Label {
+                            Layout.fillWidth: true
+                            color: root.recorderService && root.recorderService.status === "error"
+                                ? Theme.urgent : Theme.muted
+                            elide: Text.ElideMiddle
+                            font.family: "Cantarell"
+                            font.pixelSize: 9
+                            text: {
+                                if (!root.recorderService)
+                                    return "Unavailable";
+                                const recorder = root.recorderService;
+                                if (recorder.status === "selecting")
+                                    return "Select a region";
+                                if (recorder.status === "starting")
+                                    return "Starting...";
+                                if (recorder.status === "recording") {
+                                    const minutes = Math.floor(recorder.elapsedSeconds / 60);
+                                    const seconds = recorder.elapsedSeconds % 60;
+                                    return "Recording  " + minutes + ":" + String(seconds).padStart(2, "0");
+                                }
+                                if (recorder.status === "converting")
+                                    return "Creating GIF...";
+                                if (recorder.status === "error" || recorder.status === "unavailable")
+                                    return recorder.error;
+                                if (recorder.outputPath)
+                                    return recorder.outputPath.substring(recorder.outputPath.lastIndexOf("/") + 1);
+                                if (recorder.geometry)
+                                    return recorder.regionWidth + " x " + recorder.regionHeight + " selected";
+                                return "Select a region";
+                            }
+                        }
+                    }
+
+                    ToolButton {
+                        Layout.preferredWidth: 28
+                        Layout.preferredHeight: 28
+                        icon.source: Quickshell.iconPath("view-fullscreen-symbolic", "edit-select-all-symbolic")
+                        icon.width: 15
+                        icon.height: 15
+                        icon.color: Theme.foreground
+                        enabled: root.recorderService
+                            && ["idle", "ready", "error"].includes(root.recorderService.status)
+                        ToolTip.visible: hovered
+                        ToolTip.text: "Select region"
+                        onClicked: root.recorderService.selectRegion()
+                    }
+
+                    ToolButton {
+                        Layout.preferredWidth: 28
+                        Layout.preferredHeight: 28
+                        icon.source: Quickshell.iconPath("media-record-symbolic")
+                        icon.width: 15
+                        icon.height: 15
+                        icon.color: enabled ? Theme.urgent : Theme.muted
+                        enabled: root.recorderService && root.recorderService.status === "ready"
+                        ToolTip.visible: hovered
+                        ToolTip.text: "Start recording"
+                        onClicked: root.recorderService.startRecording()
+                    }
+
+                    ToolButton {
+                        Layout.preferredWidth: 28
+                        Layout.preferredHeight: 28
+                        icon.source: Quickshell.iconPath("media-playback-stop-symbolic")
+                        icon.width: 15
+                        icon.height: 15
+                        icon.color: enabled ? Theme.urgent : Theme.muted
+                        enabled: root.recorderService && root.recorderService.status === "recording"
+                        ToolTip.visible: hovered
+                        ToolTip.text: "Stop recording"
+                        onClicked: root.recorderService.stopRecording()
+                    }
+
+                    ToolButton {
+                        Layout.preferredWidth: 28
+                        Layout.preferredHeight: 28
+                        visible: root.recorderService && root.recorderService.outputPath.length > 0
+                        icon.source: Quickshell.iconPath("folder-videos-symbolic", "folder-symbolic")
+                        icon.width: 15
+                        icon.height: 15
+                        icon.color: Theme.accent
+                        ToolTip.visible: hovered
+                        ToolTip.text: "Open recordings folder"
+                        onClicked: commandProcess.exec([
+                            "xdg-open",
+                            root.recorderService.outputPath.substring(0, root.recorderService.outputPath.lastIndexOf("/"))
+                        ])
+                    }
+                }
             }
 
             Rectangle {

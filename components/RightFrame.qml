@@ -13,6 +13,7 @@ PanelWindow {
     required property var shellScreen
     required property var uiState
     required property var connectivityService
+    required property var recorderService
     required property var appPinService
     readonly property bool expanded: uiState.expanded
     property var audioSink: Pipewire.defaultAudioSink
@@ -121,6 +122,7 @@ PanelWindow {
                     bluetoothAdapter: root.bluetoothAdapter
                     connectedNetwork: root.connectedNetwork
                     connectivityService: root.connectivityService
+                    recorderService: root.recorderService
                 }
 
                 Text {

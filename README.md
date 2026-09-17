@@ -86,6 +86,18 @@ python3 -m unittest discover -s scripts/tests
 
 Restart and power-off require a second confirmation click within five seconds. Lock requests use `loginctl lock-session`; install and configure `hyprlock`, `swaylock`, or another session locker if no lock screen appears.
 
+## Screen recording
+
+The quick settings panel provides region selection, start, and stop controls for GIF recording. Recordings are written to `~/Videos/Recordings`; the folder button appears after a GIF is created. The recorder requires `slurp`, `wf-recorder`, and `ffmpeg`.
+
+`SUPER+SHIFT+R` advances the current recorder state: it opens region selection when idle, starts after a region is selected, and stops while recording. Prefer the shortcut to stop when reopening the right sidebar would overlap the captured region.
+
+## Appearance
+
+Colors, dimensions, radii, and icon sizes live in `config/Theme.js`. The dock remains visible and reserves space by design.
+
+`components/DesktopFrame.qml` creates one coordinated frame per monitor. The top bar, bottom frame, and two side rails remain separate layer-shell surfaces so each edge can reserve space correctly. A click-through overlay renders the complete inner outline as one path, including its rounded corners and the calendar extension. The dock icons use a transparent surface above that outline, while the bottom frame owns the background and reservation below it. Side rails animate at a fixed maximum window size; hovering changes only their visible width, and pinning controls their compositor reservation.
+
 ## Compatibility
 
 The configuration was load-tested with Quickshell 0.3.0 under GNOME and the Hyprland Lua config was verified with Hyprland 0.56.2. Layer-shell placement, monitor-local window matching, tray menus, and notification ownership still require an actual Hyprland session to exercise.

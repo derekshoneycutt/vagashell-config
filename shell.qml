@@ -34,6 +34,35 @@ ShellRoot {
         }
     }
 
+    IpcHandler {
+        target: "recorder"
+
+        function state(): string {
+            return JSON.stringify({
+                status: recorder.status,
+                geometry: recorder.geometry,
+                error: recorder.error,
+                outputPath: recorder.outputPath
+            });
+        }
+
+        function select(): void {
+            recorder.selectRegion();
+        }
+
+        function start(): void {
+            recorder.startRecording();
+        }
+
+        function stop(): void {
+            recorder.stopRecording();
+        }
+
+        function toggle(): void {
+            recorder.toggle();
+        }
+    }
+
     NotificationService {
         id: notifications
     }
@@ -44,6 +73,10 @@ ShellRoot {
 
     ConnectivityService {
         id: connectivity
+    }
+
+    RecorderService {
+        id: recorder
     }
 
     AppPinService {
@@ -61,6 +94,7 @@ ShellRoot {
             notificationService: notifications
             systemDataService: systemData
             connectivityService: connectivity
+            recorderService: recorder
             appPinService: appPins
         }
     }

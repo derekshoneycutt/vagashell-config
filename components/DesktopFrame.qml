@@ -11,6 +11,7 @@ Scope {
     required property var notificationService
     required property var systemDataService
     required property var connectivityService
+    required property var recorderService
     required property var appPinService
 
     QtObject {
@@ -38,11 +39,13 @@ Scope {
 
         readonly property bool pinned: root.appListPreferences.pinned
         property bool hovered: false
-        readonly property bool expanded: pinned || hovered
+        readonly property bool inhibited: root.recorderService && root.recorderService.uiHidden
+        readonly property bool expanded: !inhibited && (pinned || hovered)
         property real expansion: expanded ? 1 : 0
-        readonly property real visibleWidth: Theme.appListHandleWidth
+        readonly property real visibleWidth: inhibited ? 0 : Theme.appListHandleWidth
             + (Theme.appListWidth - Theme.appListHandleWidth) * expansion
-        readonly property real reservedWidth: pinned ? Theme.appListWidth : Theme.appListHandleWidth
+        readonly property real reservedWidth: inhibited ? 0
+            : pinned ? Theme.appListWidth : Theme.appListHandleWidth
 
         function togglePinned(): void {
             root.appListPreferences.pinned = !root.appListPreferences.pinned;
@@ -86,6 +89,7 @@ Scope {
         shellScreen: root.shellScreen
         uiState: appListState
         connectivityService: root.connectivityService
+        recorderService: root.recorderService
         appPinService: root.appPinService
     }
 
